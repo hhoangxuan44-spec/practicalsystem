@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "数二备考",
+    "slug": "shuer-beikao",
+    "scheme": "shuer",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "拍下做题过程，上传给系统评估",
+        "NSPhotoLibraryUsageDescription": "从相册选择做题照片上传"
+      }
+    },
+    "android": { "package": "com.practicalsystem.shuer" },
+    "web": { "bundler": "metro", "output": "single" },
+    "plugins": ["expo-router"]
+  }
+}
