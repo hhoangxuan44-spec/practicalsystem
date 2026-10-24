@@ -14,7 +14,7 @@ export const TAXONOMY: Chapter[] = [
   chapter("A", "函数 · 极限 · 连续", "高数", [
     { id: "a1", name: "无穷小的比较与阶", freq: 3, prereqs: ["a2"], keyIdeas: [
       "求 lim α/βᵏ，极限为非零常数时 α 是 β 的 k 阶无穷小",
-      "变限积分 ∫₀^{g(x)} f(t)dt 的阶 =（f 的阶 + 1）× g 的阶",
+      "变限积分 $\\int_0^{g(x)} f(t)dt$ 的阶 =（f 的阶 + 1）× g 的阶",
       "α~β ⇔ α−β=o(α)；α²~β² 推不出 α~β",
     ] },
     { id: "a2", name: "函数极限计算（洛必达 / 泰勒 / 等价）", freq: 3, prereqs: [], keyIdeas: [
@@ -23,8 +23,8 @@ export const TAXONOMY: Chapter[] = [
       "常用展开：eˣ、sin x、cos x、ln(1+x)、(1+x)ᵃ 记到 x³",
     ] },
     { id: "a3", name: "1^∞ 与幂指型极限", freq: 2, prereqs: ["a2"], keyIdeas: [
-      "幂指函数统一写成 e^{v·ln u}",
-      "1^∞ 型：lim uᵛ = e^{lim v(u−1)}",
+      "幂指函数统一写成 $e^{v\\ln u}$",
+      "$1^\\infty$ 型：$\\lim u^v = e^{\\lim v(u-1)}$",
       "算完指数后别忘了写回 e 的幂",
     ] },
     { id: "a4", name: "数列极限（存在性 / 单调有界 / 夹逼）", freq: 2, prereqs: ["a2"], keyIdeas: [
@@ -83,12 +83,12 @@ export const TAXONOMY: Chapter[] = [
       "一阶导定不了号时，再求二阶导",
     ] },
     { id: "c6", name: "中值定理证明", freq: 3, prereqs: ["b1"], keyIdeas: [
-      "由结论倒推辅助函数：f′(ξ)+λf(ξ)=0 → F = e^{λx}f(x)",
+      "由结论倒推辅助函数：$f\'(\\xi)+\\lambda f(\\xi)=0 \\Rightarrow F = e^{\\lambda x}f(x)$",
       "需要两个中值点时，把区间分成两段分别用拉格朗日",
       "用罗尔定理前，先找两个函数值相等的点",
     ] },
     { id: "c7", name: "曲率", freq: 1, prereqs: ["b2"], keyIdeas: [
-      "K = |y″| / (1+y′²)^{3/2}，曲率半径 R = 1/K",
+      "$K = \\dfrac{|y\'\'|}{(1+y\'^2)^{3/2}}$，曲率半径 $R = 1/K$",
     ] },
   ]),
   chapter("D", "一元积分", "高数", [
@@ -105,10 +105,10 @@ export const TAXONOMY: Chapter[] = [
     { id: "d3", name: "定积分计算与性质", freq: 3, prereqs: ["d1", "d2"], keyIdeas: [
       "换元必须换限",
       "对称区间先看奇偶性；周期函数可平移积分区间",
-      "华里士公式：∫₀^{π/2} sinⁿx dx",
+      "华里士公式：$\\int_0^{\\pi/2} \\sin^n x\\,dx$",
     ] },
     { id: "d4", name: "变限积分", freq: 3, prereqs: ["b1", "d3"], keyIdeas: [
-      "d/dx ∫ₐ^{g(x)} f(t)dt = f(g(x))·g′(x)",
+      "$\\dfrac{d}{dx}\\int_a^{g(x)} f(t)dt = f(g(x))\\,g\'(x)$",
       "被积函数含 x 时先换元或拆开，把 x 提到积分号外",
       "累次积分形式的变限函数，先交换积分次序",
     ] },
@@ -152,16 +152,16 @@ export const TAXONOMY: Chapter[] = [
   chapter("F", "微分方程", "高数", [
     { id: "f1", name: "一阶方程（可分离 / 齐次 / 线性）", freq: 3, prereqs: ["d1"], keyIdeas: [
       "先判类型：可分离、齐次（y/x）、一阶线性",
-      "y′+P(x)y=Q(x)：y = e^{−∫P}(∫Q·e^{∫P}dx + C)",
+      "$y\'+P(x)y=Q(x)$：$y = e^{-\\int P}\\left(\\int Q e^{\\int P}dx + C\\right)$",
       "先化成 y′ 系数为 1 的标准形，再读 P(x)",
     ] },
     { id: "f2", name: "高阶常系数齐次线性方程", freq: 3, prereqs: [], keyIdeas: [
       "写特征方程，n 阶方程有 n 个根（含重根、复根）",
-      "单根 Ce^{rx}；k 重根乘 x 的多项式；复根 α±βi → e^{αx}(C₁cosβx+C₂sinβx)",
+      "单根 $Ce^{rx}$；k 重根乘 x 的多项式；复根 $\\alpha\\pm\\beta i \\to e^{\\alpha x}(C_1\\cos\\beta x+C_2\\sin\\beta x)$",
       "r=0 对应常数项 C，三阶方程别漏",
     ] },
     { id: "f3", name: "非齐次方程特解", freq: 2, prereqs: ["f2"], keyIdeas: [
-      "f = Pₘ(x)e^{λx}：特解设为 xᵏQₘ(x)e^{λx}，k 是 λ 作为特征根的重数",
+      "$f = P_m(x)e^{\\lambda x}$：特解设为 $x^kQ_m(x)e^{\\lambda x}$，k 是 λ 作为特征根的重数",
       "f 含 cos、sin 时，用 α±βi 是否为特征根来定 k",
     ] },
     { id: "f4", name: "可降阶与综合应用", freq: 2, prereqs: ["f1", "f2"], keyIdeas: [
@@ -195,7 +195,7 @@ export const TAXONOMY: Chapter[] = [
     ] },
     { id: "h2", name: "直角坐标计算", freq: 2, prereqs: ["d3", "h4"], keyIdeas: [
       "选积分次序：看哪个方向的积分更简单",
-      "被积函数含 e^{x²}、sin x/x 等，只能按某一顺序积分",
+      "被积函数含 $e^{x^2}$、$\\frac{\\sin x}{x}$ 等，只能按某一顺序积分",
     ] },
     { id: "h3", name: "极坐标计算", freq: 3, prereqs: ["d3", "h4"], keyIdeas: [
       "区域含圆弧、被积函数含 x²+y² 时用极坐标",
