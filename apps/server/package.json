@@ -1,0 +1,24 @@
+{
+  "name": "@ps/server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "后端：存储、文件上传、AI 识别评估流水线、REST API",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "0.133.0",
+    "@hono/node-server": "2.1.4",
+    "@ps/core": "0.1.0",
+    "hono": "4.13.13",
+    "tsx": "4.23.15",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "typescript": "6.0.3"
+  }
+}
