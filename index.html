@@ -1,0 +1,439 @@
+<title>数二能力地图</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* 布局：答题卡式网格。左侧章节 × 题型格子，右侧选中题型的证据面板 */
+:root {
+  --paper: #f6f7fb;
+  --surface: #ffffff;
+  --ink: #1a2240;
+  --muted: #646d8c;
+  --rule: #dce0ec;
+  --grid: rgba(47, 79, 209, 0.05);
+  --accent: #2f4fd1;
+  --good: #2c8a58;
+  --warn: #c9840f;
+  --bad: #c5402e;
+  --none: #9aa1b8;
+  --f-display: "Noto Serif SC", "Songti SC", "SimSun", serif;
+  --f-body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #11141d; --surface: #191d2a; --ink: #e5e8f2; --muted: #9aa2bd; --rule: #2b3144;
+    --grid: rgba(142, 162, 255, 0.05); --accent: #8ea2ff;
+    --good: #5cc08a; --warn: #e2a63a; --bad: #ec6b56; --none: #6c7390;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #11141d; --surface: #191d2a; --ink: #e5e8f2; --muted: #9aa2bd; --rule: #2b3144;
+  --grid: rgba(142, 162, 255, 0.05); --accent: #8ea2ff;
+  --good: #5cc08a; --warn: #e2a63a; --bad: #ec6b56; --none: #6c7390;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.6;
+}
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: 36px;
+}
+h1, h2 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(28px, 5vw, 40px); font-weight: 900; letter-spacing: 0.02em; }
+h2 { font-size: 20px; font-weight: 600; }
+.eyebrow {
+  font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--accent);
+}
+.lede { color: var(--muted); max-width: 62ch; margin: 8px 0 0; }
+.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+section { display: grid; gap: 14px; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.sec-head p { margin: 0; color: var(--muted); font-size: 13px; }
+
+/* 总览 */
+.overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.sheet {
+  background: var(--surface); border: 1px solid var(--rule); border-radius: 6px;
+  padding: 16px 18px; display: grid; gap: 12px; min-width: 0;
+}
+.sheet h3 { margin: 0; font-size: 14px; font-weight: 700; display: flex; justify-content: space-between; gap: 8px; }
+.sheet h3 .num { color: var(--muted); font-weight: 400; }
+.bubbles { display: grid; gap: 6px; }
+.bubble-row { display: grid; grid-template-columns: 34px 1fr; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.bubble-row .cells { display: flex; flex-wrap: wrap; gap: 4px; }
+.qb {
+  width: 24px; height: 24px; border-radius: 4px; display: grid; place-items: center;
+  font-family: var(--f-mono); font-size: 11px; color: var(--ink);
+  border: 1.5px solid var(--c); background: color-mix(in srgb, var(--c) 16%, var(--surface));
+  cursor: pointer; padding: 0;
+}
+.qb:focus-visible, .tile:focus-visible, .chip-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.score-line { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; }
+.score-line b { font-family: var(--f-mono); font-size: 18px; font-weight: 600; margin-right: 2px; }
+
+.dist { display: grid; gap: 10px; }
+.dist-bar { display: flex; height: 14px; border-radius: 3px; overflow: hidden; border: 1px solid var(--rule); }
+.dist-bar span { display: block; height: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.legend b { font-family: var(--f-mono); color: var(--ink); font-weight: 600; margin-left: 3px; }
+
+/* 结论 */
+.findings { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.finding { border-left: 3px solid var(--c); padding: 4px 0 4px 12px; min-width: 0; }
+.finding strong { display: block; font-size: 15px; }
+.finding p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+
+/* 地图 */
+.map-layout { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 960px) {
+  .map-layout { grid-template-columns: minmax(0, 1fr) 340px; align-items: start; }
+  .detail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); }
+}
+.map { display: grid; gap: 18px; }
+.part-label { font-family: var(--f-mono); font-size: 12px; color: var(--muted); letter-spacing: 0.08em; border-bottom: 1px solid var(--rule); padding-bottom: 4px; }
+.chapter { display: grid; gap: 8px; }
+.ch-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.ch-head h3 { margin: 0; font-size: 15px; font-weight: 700; }
+.ch-head .meta { font-size: 12px; color: var(--muted); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 8px; }
+.tile {
+  text-align: left; font: inherit; color: var(--ink); cursor: pointer;
+  background: color-mix(in srgb, var(--c) 14%, var(--surface));
+  border: 1.5px solid var(--c); border-radius: 5px; padding: 8px 10px;
+  display: grid; gap: 6px; min-width: 0;
+}
+.tile.low { border-style: dashed; }
+.tile.none {
+  background: repeating-linear-gradient(135deg, var(--surface) 0 6px, color-mix(in srgb, var(--none) 10%, var(--surface)) 6px 7px);
+  border-color: var(--rule);
+}
+.tile.sel { box-shadow: 0 0 0 2px var(--accent); }
+.tile .t-name { font-size: 13px; line-height: 1.35; }
+.tile .t-foot { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.tile .t-score { font-family: var(--f-mono); font-size: 13px; font-weight: 600; color: var(--c); }
+.tile.none .t-score { color: var(--muted); font-weight: 400; }
+.freq { font-family: var(--f-mono); font-size: 10px; color: var(--muted); letter-spacing: 0.05em; }
+.dots { display: flex; gap: 3px; }
+.dots i { width: 8px; height: 8px; border-radius: 2px; background: var(--c); display: block; }
+
+.key { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12px; color: var(--muted); align-items: center; }
+.key .sw { display: inline-block; width: 22px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; border: 1.5px solid var(--c); background: color-mix(in srgb, var(--c) 14%, var(--surface)); }
+.key .sw.dash { border-style: dashed; }
+
+/* 详情 */
+.detail { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 16px 18px; display: grid; gap: 12px; min-width: 0; }
+.detail h3 { margin: 0; font-family: var(--f-display); font-size: 18px; font-weight: 600; }
+.d-meta { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.d-meta b { color: var(--ink); font-family: var(--f-mono); }
+.advice { background: color-mix(in srgb, var(--accent) 8%, var(--surface)); border-radius: 4px; padding: 10px 12px; font-size: 13px; }
+.ev { display: grid; gap: 10px; }
+.ev-item { border-top: 1px solid var(--rule); padding-top: 10px; display: grid; gap: 4px; font-size: 13px; }
+.ev-top { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.chip {
+  display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; white-space: nowrap;
+  color: var(--c); border: 1px solid var(--c); background: color-mix(in srgb, var(--c) 10%, var(--surface));
+}
+.ans { color: var(--muted); overflow-wrap: anywhere; }
+.ans span { color: var(--ink); }
+.empty { color: var(--muted); font-size: 13px; margin: 0; }
+
+/* 优先列表 */
+.prio { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; counter-reset: p; }
+.prio li { counter-increment: p; }
+.chip-btn {
+  width: 100%; text-align: left; font: inherit; color: var(--ink); cursor: pointer;
+  background: var(--surface); border: 1px solid var(--rule); border-radius: 5px; padding: 10px 12px;
+  display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center;
+}
+.chip-btn::before { content: counter(p); font-family: var(--f-mono); color: var(--accent); font-weight: 600; }
+.chip-btn .why { display: block; font-size: 12px; color: var(--muted); }
+.two { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.untested { display: flex; flex-wrap: wrap; gap: 8px; }
+.untested button { font: inherit; font-size: 13px; cursor: pointer; color: var(--ink); background: var(--surface); border: 1px dashed var(--none); border-radius: 4px; padding: 5px 10px; }
+
+/* 逐题 */
+.filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.filters button { font: inherit; font-size: 13px; cursor: pointer; padding: 4px 12px; border-radius: 4px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink); }
+.filters button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 13px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-weight: 500; color: var(--muted); font-size: 12px; }
+td.q { font-family: var(--f-mono); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+.method-note { font-size: 13px; color: var(--muted); max-width: 72ch; }
+.method-note code { font-family: var(--f-mono); font-size: 12px; }
+@media (prefers-reduced-motion: no-preference) {
+  .tile, .chip-btn { transition: transform .12s ease; }
+  .tile:hover, .chip-btn:hover { transform: translateY(-1px); }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">数学二 · 第一版诊断</div>
+    <h1>数二能力地图</h1>
+    <p class="lede" id="lede"></p>
+  </header>
+
+  <section>
+    <div class="sec-head"><h2>两套卷子的答题卡</h2><p>点格子查看这道题</p></div>
+    <div class="overview" id="overview"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>从卷面看出的四个问题</h2></div>
+    <div class="findings" id="findings"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>先补这几个</h2><p>按 考频 × 薄弱程度 排序</p></div>
+    <div class="two">
+      <ol class="prio" id="prio"></ol>
+      <div class="sheet">
+        <h3>高频但还没测过</h3>
+        <p class="empty">这两套卷子没碰到它们，地图上是灰的。下一步用诊断题补上。</p>
+        <div class="untested" id="untested"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>题型地图</h2><p id="coverage"></p></div>
+    <div class="key">
+      <span><i class="sw" style="--c:var(--good)"></i>掌握</span>
+      <span><i class="sw" style="--c:var(--warn)"></i>不稳</span>
+      <span><i class="sw" style="--c:var(--bad)"></i>薄弱</span>
+      <span><i class="sw dash" style="--c:var(--muted)"></i>虚线 = 只有 1 次记录，把握不大</span>
+      <span><i class="sw" style="--c:var(--rule)"></i>斜纹 = 没测过</span>
+      <span class="freq">★★★ = 几乎每年考</span>
+    </div>
+    <div class="map-layout">
+      <div class="map" id="map"></div>
+      <aside class="detail" id="detail" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>逐题记录</h2><p>如果我认错了你的笔迹，告诉我题号</p></div>
+    <div class="filters" id="filters"></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>题</th><th>题型</th><th>你的答案</th><th>标准答案</th><th>判定</th><th>问题出在哪</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <p class="method-note">
+      掌握度怎么算：每次作答按结果折算成分数（正确 1，计算失误 0.55，未做完 0.35，方法错 0.15，概念不清 0.1，空白 0），
+      再与一个 50 分的先验平均：<code>(0.5 + 得分之和) / (1 + 次数)</code>。只做过一次的题型证据太少，显示为虚线。
+      记录越多，颜色越可信。
+    </p>
+  </section>
+</div>
+
+<script src="data/taxonomy.js"></script>
+<script src="data/records.js"></script>
+<script>
+(function () {
+  const RESULT = {
+    ok:      { label: "正确",     score: 1,    c: "var(--good)" },
+    calc:    { label: "计算失误", score: 0.55, c: "var(--warn)" },
+    partial: { label: "未做完",   score: 0.35, c: "var(--accent)" },
+    method:  { label: "方法错",   score: 0.15, c: "var(--bad)" },
+    concept: { label: "概念不清", score: 0.1,  c: "color-mix(in srgb, var(--bad) 60%, var(--ink))" },
+    blank:   { label: "空白",     score: 0,    c: "var(--none)" },
+  };
+  const ADVICE = {
+    concept: "回到定义和定理条件，专门做概念辨析类选择题，每道都说清楚为什么其他选项错。",
+    method:  "这个题型的标准方法还没掌握。集中做 5 到 8 道同类例题，先看解法，再盖住答案独立重做。",
+    calc:    "思路是对的，丢分在计算。做限时计算练习，算完把结果代回或换方法验算。",
+    partial: "做到一半停了。先完整看一遍标准解法，第二天再独立从头写一遍。",
+    blank:   "没有动笔。先学这个题型的标准解法，再从最简单的例题做起。",
+  };
+  const FREQ = { 3: "★★★", 2: "★★", 1: "★" };
+
+  const nodes = {};
+  TAXONOMY.forEach(ch => ch.items.forEach(it => { nodes[it.id] = { ...it, chapter: ch, ev: [] }; }));
+  RECORDS.forEach(r => r.tags.forEach(t => nodes[t] && nodes[t].ev.push(r)));
+
+  Object.values(nodes).forEach(n => {
+    const k = n.ev.length;
+    const sum = n.ev.reduce((s, r) => s + RESULT[r.result].score, 0);
+    n.m = k ? (0.5 + sum) / (1 + k) : null;
+    n.level = !k ? "none" : n.m >= 0.7 ? "good" : n.m >= 0.45 ? "warn" : "bad";
+    const counts = {};
+    n.ev.filter(r => r.result !== "ok").forEach(r => counts[r.result] = (counts[r.result] || 0) + 1);
+    n.mainErr = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+    n.prio = k ? n.freq * (1 - n.m) * (k >= 2 ? 1 : 0.8) : 0;
+  });
+
+  const LEVEL_C = { good: "var(--good)", warn: "var(--warn)", bad: "var(--bad)", none: "var(--rule)" };
+  const pct = m => Math.round(m * 100);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const papers = [...new Set(RECORDS.map(r => r.paper))].sort().reverse();
+
+  document.getElementById("lede").textContent =
+    `依据：你手写作答的 ${papers.join("、")} 年数二真题，共 ${RECORDS.length} 题。每道题我对照标准答案和你的演算过程判定了对错和出错原因，再归到题型上。`;
+
+  // 答题卡
+  const ov = document.getElementById("overview");
+  papers.forEach(p => {
+    const rs = RECORDS.filter(r => r.paper === p);
+    const obj = rs.filter(r => r.kind !== "解答");
+    const objOk = obj.filter(r => r.result === "ok").length;
+    const full = rs.filter(r => r.kind === "解答" && r.result === "ok");
+    const row = (kind, label) => {
+      const cells = rs.filter(r => r.kind === kind).map(r =>
+        `<button class="qb" style="--c:${RESULT[r.result].c}" data-paper="${p}" data-q="${r.q}" title="${r.q} · ${RESULT[r.result].label}" aria-label="第 ${r.q} 题 ${RESULT[r.result].label}">${r.q}</button>`).join("");
+      return `<div class="bubble-row"><span>${label}</span><div class="cells">${cells}</div></div>`;
+    };
+    ov.insertAdjacentHTML("beforeend", `
+      <div class="sheet">
+        <h3>${p} 数二 <span class="num">${rs.length} 题</span></h3>
+        <div class="bubbles">${row("选择", "选择")}${row("填空", "填空")}${row("解答", "解答")}</div>
+        <div class="score-line">
+          <span><b>${objOk * 5}</b>/80 客观题</span>
+          <span><b>${full.length}</b>/6 道大题全对</span>
+        </div>
+      </div>`);
+  });
+  const totals = {};
+  RECORDS.forEach(r => totals[r.result] = (totals[r.result] || 0) + 1);
+  const order = ["ok", "calc", "method", "concept", "partial", "blank"];
+  ov.insertAdjacentHTML("beforeend", `
+    <div class="sheet dist">
+      <h3>出错原因分布 <span class="num">${RECORDS.length} 题</span></h3>
+      <div class="dist-bar">${order.filter(k => totals[k]).map(k =>
+        `<span style="width:${totals[k] / RECORDS.length * 100}%;background:${RESULT[k].c}" title="${RESULT[k].label} ${totals[k]}"></span>`).join("")}</div>
+      <div class="legend">${order.filter(k => totals[k]).map(k =>
+        `<span><i style="background:${RESULT[k].c}"></i>${RESULT[k].label}<b>${totals[k]}</b></span>`).join("")}</div>
+      <p class="empty">做错的 ${RECORDS.length - (totals.ok || 0)} 题里，有 ${totals.calc || 0} 题思路是对的，只是算错了。</p>
+    </div>`);
+
+  // 四条结论
+  const F = [
+    { c: "var(--warn)", t: "最大的失分是计算", d: "1^∞ 极限、隐函数二阶导、有理积分、一阶方程、泰勒展开、特征多项式，共 10 题思路都对，最后一步算错。这部分不用学新东西，提分最快。" },
+    { c: "var(--bad)",  t: "高阶常系数方程两年都错", d: "22 年漏了 r=0 的常数项，21 年没解出 r³=1 的复根。题型固定，一两个小时就能补上。" },
+    { c: "var(--bad)",  t: "极坐标：画图和定角度范围", d: "r=sin3θ 被当成圆，双纽线的 θ 范围取成 0~π/2 还得出负值。同样是极坐标，22 年第 19 题却做对了，说明会算，问题在画区域。" },
+    { c: "var(--accent)", t: "大题后半段没做到", d: "22 年第 21 题（积分不等式证明）、第 22 题（正交变换）空白，两题 24 分。另外中值定理证明还没测过。" },
+  ];
+  document.getElementById("findings").innerHTML = F.map(f =>
+    `<div class="finding" style="--c:${f.c}"><strong>${f.t}</strong><p>${f.d}</p></div>`).join("");
+
+  // 优先列表
+  const ranked = Object.values(nodes).filter(n => n.ev.length).sort((a, b) => b.prio - a.prio).slice(0, 6);
+  document.getElementById("prio").innerHTML = ranked.map(n => `
+    <li><button class="chip-btn" data-node="${n.id}">
+      <span>${esc(n.name)}<span class="why">${n.chapter.name} · ${FREQ[n.freq]} · ${n.mainErr ? "主要问题：" + RESULT[n.mainErr].label : ""}</span></span>
+      <span class="num" style="color:${LEVEL_C[n.level]}">${pct(n.m)}</span>
+    </button></li>`).join("");
+  const untested = Object.values(nodes).filter(n => !n.ev.length).sort((a, b) => b.freq - a.freq);
+  document.getElementById("untested").innerHTML = untested.filter(n => n.freq >= 2).map(n =>
+    `<button data-node="${n.id}">${esc(n.name)} <span class="freq">${FREQ[n.freq]}</span></button>`).join("");
+
+  // 地图
+  const all = Object.values(nodes);
+  const tested = all.filter(n => n.ev.length).length;
+  document.getElementById("coverage").textContent = `${all.length} 个题型，已测 ${tested} 个，未测 ${all.length - tested} 个`;
+  const map = document.getElementById("map");
+  let lastPart = null;
+  TAXONOMY.forEach(ch => {
+    if (ch.part !== lastPart) { map.insertAdjacentHTML("beforeend", `<div class="part-label">${ch.part}</div>`); lastPart = ch.part; }
+    const its = ch.items.map(i => nodes[i.id]);
+    const t = its.filter(n => n.ev.length);
+    const avg = t.length ? t.reduce((s, n) => s + n.m, 0) / t.length : null;
+    const tiles = its.map(n => {
+      const cls = ["tile", n.level === "none" ? "none" : "", n.ev.length === 1 ? "low" : ""].join(" ");
+      const dots = n.ev.map(r => `<i style="--c:${RESULT[r.result].c}"></i>`).join("");
+      return `<button class="${cls}" style="--c:${LEVEL_C[n.level]}" data-node="${n.id}">
+        <span class="t-name">${esc(n.name)}</span>
+        <span class="t-foot"><span class="t-score">${n.m === null ? "未测" : pct(n.m)}</span><span class="dots">${dots}</span><span class="freq">${FREQ[n.freq]}</span></span>
+      </button>`;
+    }).join("");
+    map.insertAdjacentHTML("beforeend", `
+      <div class="chapter">
+        <div class="ch-head"><h3>${ch.name}</h3><span class="meta num">${avg === null ? "未测" : "平均 " + pct(avg)} · 已测 ${t.length}/${its.length}</span></div>
+        <div class="tiles">${tiles}</div>
+      </div>`);
+  });
+
+  const detail = document.getElementById("detail");
+  function select(id, scroll) {
+    const n = nodes[id];
+    document.querySelectorAll(".tile.sel").forEach(e => e.classList.remove("sel"));
+    document.querySelector(`.tile[data-node="${id}"]`)?.classList.add("sel");
+    const evs = n.ev.map(r => `
+      <div class="ev-item">
+        <div class="ev-top"><span class="num">${r.paper} · 第 ${r.q} 题 · ${r.kind}</span><span class="chip" style="--c:${RESULT[r.result].c}">${RESULT[r.result].label}</span></div>
+        <div class="ans">你的：<span>${esc(r.mine)}</span>　标准：<span>${esc(r.answer)}</span></div>
+        ${r.note ? `<div>${esc(r.note)}</div>` : ""}
+      </div>`).join("");
+    detail.innerHTML = `
+      <div class="eyebrow">${n.chapter.name}</div>
+      <h3>${esc(n.name)}</h3>
+      <div class="d-meta">
+        <span>掌握度 <b style="color:${LEVEL_C[n.level]}">${n.m === null ? "—" : pct(n.m)}</b></span>
+        <span>记录 <b>${n.ev.length}</b> 次</span>
+        <span>考频 <b>${FREQ[n.freq]}</b></span>
+      </div>
+      ${n.mainErr ? `<div class="advice">${ADVICE[n.mainErr]}</div>` : ""}
+      ${!n.ev.length ? `<p class="empty">还没有这个题型的做题记录。下一步会给它出 1 到 2 道诊断题。</p>` : ""}
+      ${n.ev.length && !n.mainErr ? `<p class="empty">目前的记录都做对了。再有一两次正确记录，就能确认已经掌握。</p>` : ""}
+      <div class="ev">${evs}</div>`;
+    if (scroll && window.matchMedia("(max-width: 959px)").matches) detail.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-node]");
+    if (b) { select(b.dataset.node, true); if (!b.classList.contains("tile")) document.querySelector(`.tile[data-node="${b.dataset.node}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+    const q = e.target.closest(".qb");
+    if (q) {
+      const r = RECORDS.find(x => x.paper === q.dataset.paper && String(x.q) === q.dataset.q);
+      select(r.tags[0], false);
+      document.querySelector(`.tile[data-node="${r.tags[0]}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  });
+  select(ranked[0].id, false);
+
+  // 逐题
+  const filters = document.getElementById("filters");
+  const opts = ["全部", ...papers, "只看错题"];
+  let cur = "全部";
+  function renderRows() {
+    filters.innerHTML = opts.map(o => `<button aria-pressed="${o === cur}" data-f="${o}">${o}</button>`).join("");
+    const rs = RECORDS.filter(r => cur === "全部" || r.paper === cur || (cur === "只看错题" && r.result !== "ok"));
+    document.getElementById("rows").innerHTML = rs.map(r => `
+      <tr>
+        <td class="q">${r.paper}-${r.q}</td>
+        <td>${r.tags.map(t => esc(nodes[t].name)).join("<br>")}</td>
+        <td>${esc(r.mine)}</td>
+        <td>${esc(r.answer)}</td>
+        <td><span class="chip" style="--c:${RESULT[r.result].c}">${RESULT[r.result].label}</span></td>
+        <td>${esc(r.note || "")}</td>
+      </tr>`).join("");
+  }
+  filters.addEventListener("click", e => { const b = e.target.closest("[data-f]"); if (b) { cur = b.dataset.f; renderRows(); } });
+  renderRows();
+})();
+</script>
